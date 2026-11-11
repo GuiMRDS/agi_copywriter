@@ -9,7 +9,7 @@ from agno.os import AgentOS
 
 load_dotenv()
 warnings.filterwarnings("ignore", message="Duplicate Operation ID")  # bug interno do agno, inofensivo
-db = SqliteDb(db_file="agno.db")
+db = SqliteDb(db_file="tmp/agno.db")
 
 
 def ler_transcricoes(criador: str) -> str:
