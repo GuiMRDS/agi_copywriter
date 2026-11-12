@@ -51,6 +51,15 @@ Coloque os vídeos em `videos/<nome-do-criador>/` e rode:
 uv run transcripter.py
 ```
 
+Ele transcreve só os vídeos novos (os que ainda não estão no JSON do criador).
+
+Também dá para adicionar vídeos **pelo chat**, sem mexer em pastas:
+
+- **Link**: cole o link do Reels, TikTok ou YouTube Shorts e diga o criador ("adicione este vídeo ao kallaway: https://...").
+- **Arquivo**: anexe o vídeo pelo botão 📎 do `agent-ui` e diga o criador.
+
+O vídeo é salvo em `videos/<criador>/`, transcrito e adicionado aos exemplos. Se o criador não existir, ele é criado.
+
 ### 2. Subir o agente
 
 ```bash
@@ -82,6 +91,8 @@ uv run tools/transcripts.py kallaway 1 3 # lê os roteiros 1 e 3
 | `listar_criadores()` | Lista os criadores disponíveis e quantos roteiros cada um tem |
 | `listar_transcricoes(criador)` | Lista os roteiros de um criador com número e hook |
 | `ler_transcricoes(criador, numeros)` | Retorna as transcrições escolhidas (ou todas) em `Transcript N` |
+| `adicionar_video_por_link(criador, link)` | Baixa o vídeo (yt-dlp), transcreve e adiciona ao criador |
+| `adicionar_videos_enviados(criador)` | Transcreve os vídeos anexados no chat e adiciona ao criador |
 | Tavily | Pesquisa na web |
 
 ## Estrutura
@@ -89,8 +100,9 @@ uv run tools/transcripts.py kallaway 1 3 # lê os roteiros 1 e 3
 ```
 agents.py             # agente + AgentOS
 prompt/copywrite.md   # instruções do agente
-tools/transcripts.py  # ferramentas de transcrição
-transcripter.py       # vídeos → transcrições
+tools/transcripts.py  # ferramentas de leitura das transcrições
+tools/videos.py       # transcrição de vídeos e ferramentas para adicionar vídeos
+transcripter.py       # transcreve os vídeos novos de videos/
 transcriptions/       # transcrições (JSON por criador)
 videos/               # vídeos de origem
 agent-ui/             # front-end (Next.js)
@@ -98,5 +110,7 @@ tmp/                  # banco do agente (ignorado pelo git)
 ```
 
 ## Limitações
+
+Links do Instagram às vezes exigem login para baixar. TikTok e YouTube Shorts costumam funcionar direto.
 
 O plano gratuito da Groq limita o `openai/gpt-oss-120b` a **8.000 tokens por minuto**. Por isso o agente usa buscas curtas no Tavily, não reenvia resultados de ferramentas no histórico e pode ler só os roteiros escolhidos. Para uso mais intenso, use o Dev Tier da Groq ou troque o modelo em `agents.py`.
