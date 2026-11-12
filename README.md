@@ -6,7 +6,7 @@ Ele pesquisa o assunto na web, estuda as transcrições dos vídeos do criador e
 ## Como funciona
 
 ```
-videos/<criador>/*.mp4 ──► transcripter.py ──► transcriptions/<criador>.json
+videos/<criador>/*.mp4 ──► transcripter.py ──► data/transcricoes.db (SQLite)
                           (ffmpeg + Whisper)              │
                                                           ▼
                        usuário ◄──► agent-ui ◄──► agents.py (Agno + Groq)
@@ -45,7 +45,7 @@ TAVILY_API_KEY=tvly-...
 
 ### 1. Gerar transcrições
 
-> As pastas `videos/` e `transcriptions/` **não são versionadas**: o conteúdo pertence aos criadores e fica só na sua máquina. Use vídeos que você tem direito de usar.
+> As pastas `videos/` e `data/` **não são versionadas**: o conteúdo pertence aos criadores e fica só na sua máquina. Use vídeos que você tem direito de usar.
 
 Coloque os vídeos em `videos/<nome-do-criador>/` e rode:
 
@@ -53,7 +53,9 @@ Coloque os vídeos em `videos/<nome-do-criador>/` e rode:
 uv run transcripter.py
 ```
 
-Ele transcreve só os vídeos novos (os que ainda não estão no JSON do criador).
+Ele transcreve só os vídeos novos (os que ainda não estão no banco). Na primeira vez, também importa os antigos `transcriptions/*.json`, se existirem.
+
+As transcrições ficam no banco SQLite `data/transcricoes.db`, tabela `transcricoes` (`criador`, `video`, `origem`, `texto`, `criado_em`). A coluna `origem` indica de onde veio o vídeo: `pasta`, `upload` ou o link.
 
 Também dá para adicionar vídeos **pelo chat**, sem mexer em pastas:
 
@@ -105,7 +107,7 @@ prompt/copywrite.md   # instruções do agente
 tools/transcripts.py  # ferramentas de leitura das transcrições
 tools/videos.py       # transcrição de vídeos e ferramentas para adicionar vídeos
 transcripter.py       # transcreve os vídeos novos de videos/
-transcriptions/       # transcrições (JSON por criador)
+data/                 # banco de transcrições (ignorado pelo git)
 videos/               # vídeos de origem
 agent-ui/             # front-end (Next.js)
 tmp/                  # banco do agente (ignorado pelo git)
