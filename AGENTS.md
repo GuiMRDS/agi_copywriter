@@ -58,5 +58,5 @@ No Windows, defina `PYTHONIOENCODING=utf-8` se o terminal der erro ao imprimir c
 - Para adicionar um criador: crie `videos/<nome>/`, coloque os `.mp4` e rode `uv run transcripter.py`, ou adicione pelo chat (link ou anexo).
 - Vídeos anexados chegam às ferramentas pelo parâmetro `videos: Optional[Sequence[Video]]`, que o Agno injeta e não aparece no schema. O agente usa `send_media_to_model=False` (o modelo não vê os vídeos, só as ferramentas) e `store_media=False` (os vídeos não vão para o banco).
 - Vídeos anexados são salvos com o hash do conteúdo como nome. Assim, enviar o mesmo vídeo de novo não duplica a transcrição.
-- Nome de criador é normalizado (minúsculas, só `a-z0-9_-`) para evitar caminhos inválidos.
+- Nome de criador é normalizado por `normalizar()` em `tools/transcripts.py` (minúsculas, só `a-z0-9_-`). Use essa mesma função em qualquer código que monte caminhos a partir do nome, tanto para ler quanto para salvar.
 - Avisos conhecidos e inofensivos: `Duplicate Operation ID` (bug do Agno, silenciado no `agents.py`) e `404 Session ... not found` ao abrir um chat novo na UI.

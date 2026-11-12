@@ -1,12 +1,17 @@
-import json
+import json, re
 from pathlib import Path
 
 PASTA = Path(__file__).parent.parent / "transcriptions"
 
 
+def normalizar(criador: str) -> str:
+    """Nome de criador seguro para usar em caminhos: "Jeff Nippard" -> "jeffnippard"."""
+    return re.sub(r"[^a-z0-9_-]", "", criador.lower())
+
+
 def _carregar(criador: str) -> list[str] | str:
-    arquivo = PASTA / f"{criador.strip().lower()}.json"
-    if not arquivo.exists():
+    arquivo = PASTA / f"{normalizar(criador)}.json"
+    if not normalizar(criador) or not arquivo.exists():
         return f"Criador '{criador}' não encontrado. Disponíveis: {', '.join(f.stem for f in PASTA.glob('*.json'))}"
     return [t.strip() for t in json.loads(arquivo.read_text(encoding="utf-8")).values()]
 

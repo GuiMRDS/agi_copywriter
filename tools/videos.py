@@ -1,9 +1,10 @@
-import hashlib, json, re, subprocess
+import hashlib, json, subprocess
 from pathlib import Path
 from typing import Optional, Sequence
 from dotenv import load_dotenv
 from groq import Groq
 from agno.media import Video
+from tools.transcripts import normalizar
 
 load_dotenv(Path(__file__).parent.parent / ".env")
 VIDEOS = Path(__file__).parent.parent / "videos"
@@ -11,7 +12,7 @@ TRANSCRICOES = Path(__file__).parent.parent / "transcriptions"
 
 
 def _pasta(criador: str) -> Path:
-    nome = re.sub(r"[^a-z0-9_-]", "", criador.strip().lower().replace(" ", ""))
+    nome = normalizar(criador)
     if not nome:
         raise ValueError(f"Nome de criador inválido: '{criador}'")
     pasta = VIDEOS / nome
