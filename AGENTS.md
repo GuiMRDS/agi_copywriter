@@ -19,8 +19,8 @@ O pipeline tem duas partes:
 | `tools/transcripts.py` | Ferramentas de leitura: `listar_criadores`, `listar_transcricoes`, `ler_transcricoes` |
 | `tools/videos.py` | `salvar_transcricao` e as ferramentas `adicionar_video_por_link` (yt-dlp) e `adicionar_videos_enviados` (anexos do chat) |
 | `transcripter.py` | Transcreve os vídeos novos de `videos/` |
-| `transcriptions/` | Transcrições em JSON, uma por criador |
-| `videos/` | Vídeos de origem, uma pasta por criador |
+| `transcriptions/` | Transcrições em JSON, uma por criador. **Ignorado pelo git** (texto de terceiros) |
+| `videos/` | Vídeos de origem, uma pasta por criador. **Ignorado pelo git** (direitos autorais) |
 | `agent-ui/` | Front-end Next.js do Agno (projeto separado, com seu próprio `package.json`). Tem botão de anexar vídeo em `src/components/chat/ChatArea/ChatInput/ChatInput.tsx`, que envia os arquivos no campo `files` |
 | `tmp/` | Storage do agente (`tmp/agno.db`: sessões, histórico, memórias). Ignorado pelo git |
 
@@ -59,4 +59,5 @@ No Windows, defina `PYTHONIOENCODING=utf-8` se o terminal der erro ao imprimir c
 - Vídeos anexados chegam às ferramentas pelo parâmetro `videos: Optional[Sequence[Video]]`, que o Agno injeta e não aparece no schema. O agente usa `send_media_to_model=False` (o modelo não vê os vídeos, só as ferramentas) e `store_media=False` (os vídeos não vão para o banco).
 - Vídeos anexados são salvos com o hash do conteúdo como nome. Assim, enviar o mesmo vídeo de novo não duplica a transcrição.
 - Nome de criador é normalizado por `normalizar()` em `tools/transcripts.py` (minúsculas, só `a-z0-9_-`). Use essa mesma função em qualquer código que monte caminhos a partir do nome, tanto para ler quanto para salvar.
+- **Nunca** faça commit de `videos/` ou `transcriptions/`: é conteúdo de outros criadores.
 - Avisos conhecidos e inofensivos: `Duplicate Operation ID` (bug do Agno, silenciado no `agents.py`) e `404 Session ... not found` ao abrir um chat novo na UI.

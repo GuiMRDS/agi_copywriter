@@ -45,6 +45,8 @@ TAVILY_API_KEY=tvly-...
 
 ### 1. Gerar transcrições
 
+> As pastas `videos/` e `transcriptions/` **não são versionadas**: o conteúdo pertence aos criadores e fica só na sua máquina. Use vídeos que você tem direito de usar.
+
 Coloque os vídeos em `videos/<nome-do-criador>/` e rode:
 
 ```bash
