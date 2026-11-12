@@ -19,7 +19,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agno", specifier = ">=2" },
+    { name = "agno", specifier = ">=3" },
     { name = "aiosqlite", specifier = ">=0.22.1" },
     { name = "fastapi", specifier = ">=0.162.4" },
     { name = "groq", specifier = ">=1.7.0" },

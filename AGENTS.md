@@ -1,0 +1,58 @@
+# AGENTS.md
+
+Instruções para agentes de IA (Claude Code, Codex, Cursor etc.) que trabalham neste repositório.
+
+## Visão geral
+
+Agente copywriter que escreve roteiros de Reels imitando o estilo de criadores de conteúdo.
+O pipeline tem duas partes:
+
+1. **`transcripter.py`**: lê `videos/<criador>/*.mp4`, extrai o áudio com ffmpeg, transcreve com Whisper (Groq) e salva em `transcriptions/<criador>.json` (`{"<video>.mp4": "<texto>"}`).
+2. **`agents.py`**: agente Agno servido pelo AgentOS (`localhost:7777`), que pesquisa na web e usa as transcrições como referência de estilo. O front-end fica em `agent-ui/`.
+
+## Estrutura
+
+| Caminho | Função |
+|---|---|
+| `agents.py` | Define o agente (modelo, ferramentas, banco) e o AgentOS |
+| `prompt/copywrite.md` | Instruções (system prompt) do agente |
+| `tools/transcripts.py` | Ferramentas de transcrição: `listar_criadores`, `listar_transcricoes`, `ler_transcricoes` |
+| `transcripter.py` | Gera as transcrições a partir dos vídeos |
+| `transcriptions/` | Transcrições em JSON, uma por criador |
+| `videos/` | Vídeos de origem, uma pasta por criador |
+| `agent-ui/` | Front-end Next.js do Agno (projeto separado, com seu próprio `package.json`) |
+| `tmp/` | Storage do agente (`tmp/agno.db`: sessões, histórico, memórias). Ignorado pelo git |
+
+## Comandos
+
+```bash
+uv sync                                  # instala dependências
+uv run transcripter.py                   # gera/atualiza transcrições (requer ffmpeg no PATH)
+uv run agents.py                         # sobe o AgentOS em localhost:7777
+uv run tools/transcripts.py              # lista criadores
+uv run tools/transcripts.py kallaway     # lista roteiros de um criador
+uv run tools/transcripts.py kallaway 1 3 # lê roteiros específicos
+cd agent-ui && npm install && npm run dev  # front-end em localhost:3000
+```
+
+No Windows, defina `PYTHONIOENCODING=utf-8` se o terminal der erro ao imprimir caracteres especiais.
+
+## Variáveis de ambiente (`.env`)
+
+- `GROQ_API_KEY`: modelo do agente e Whisper.
+- `TAVILY_API_KEY`: pesquisa na web.
+
+**Nunca** faça commit do `.env` nem imprima o valor das chaves.
+
+## Regras e cuidados
+
+- **Limite de tokens da Groq (plano gratuito): 8.000 TPM** no `openai/gpt-oss-120b`. Toda mudança precisa manter o contexto pequeno:
+  - não aumente `max_tokens` do Tavily (hoje 1000) nem `num_history_runs` (hoje 3) sem necessidade;
+  - mantenha `max_tool_calls_from_history=0`;
+  - prefira `ler_transcricoes(criador, numeros=[...])` a ler todas as transcrições de uma vez.
+- Ferramentas do agente são funções Python simples: a **docstring e os type hints viram o schema** que o modelo vê. Mantenha docstrings curtas, com exemplos de valores reais nos `Args`.
+- Ferramentas devem devolver `str` e retornar mensagens de erro úteis (ex: listar os criadores válidos) em vez de lançar exceções.
+- O caminho das transcrições é relativo ao arquivo (`Path(__file__)`), não ao diretório atual. Mantenha assim.
+- O prompt do agente está em português, mas os roteiros e hooks são gerados **em inglês** (regra do `prompt/copywrite.md`).
+- Para adicionar um criador: crie `videos/<nome>/`, coloque os `.mp4` e rode `uv run transcripter.py`.
+- Avisos conhecidos e inofensivos: `Duplicate Operation ID` (bug do Agno, silenciado no `agents.py`) e `404 Session ... not found` ao abrir um chat novo na UI.

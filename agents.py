@@ -6,16 +6,11 @@ from agno.db.sqlite import SqliteDb
 from agno.models.groq import Groq
 from agno.tools.tavily import TavilyTools
 from agno.os import AgentOS
+from tools.transcripts import listar_criadores, listar_transcricoes, ler_transcricoes
 
 load_dotenv()
 warnings.filterwarnings("ignore", message="Duplicate Operation ID")  # bug interno do agno, inofensivo
 db = SqliteDb(db_file="tmp/agno.db")
-
-
-def ler_transcricoes(criador: str) -> str:
-    """Retorna as transcrições dos vídeos de um criador (ex: jeffnippard, kallaway, rourkeheath)."""
-    arquivo = Path("transcriptions") / f"{criador}.json"
-    return arquivo.read_text(encoding="utf-8") if arquivo.exists() else f"Criadores disponíveis: {[f.stem for f in Path('transcriptions').glob('*.json')]}"
 
 
 agent = Agent(
@@ -24,7 +19,8 @@ agent = Agent(
     db=db,
     add_history_to_context=True,
     num_history_runs=3,
-    tools=[TavilyTools(), ler_transcricoes],
+    max_tool_calls_from_history=0,  # não reenvia resultados de ferramentas antigas (limite de 8k TPM da Groq)
+    tools=[TavilyTools(max_tokens=1000, search_depth="basic"), listar_criadores, listar_transcricoes, ler_transcricoes],
     instructions=Path("prompt/copywrite.md").read_text(encoding="utf-8"),
     markdown=True,
 )
