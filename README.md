@@ -111,6 +111,10 @@ agent-ui/             # front-end (Next.js)
 tmp/                  # banco do agente (ignorado pelo git)
 ```
 
+## Créditos
+
+A interface em `agent-ui/` é baseada no [Agent UI](https://github.com/agno-agi/agent-ui) da [Agno](https://agno.com) (licença MIT, ver `agent-ui/LICENSE`), com um botão para anexar vídeos no chat.
+
 ## Limitações
 
 Links do Instagram às vezes exigem login para baixar. TikTok e YouTube Shorts costumam funcionar direto.
